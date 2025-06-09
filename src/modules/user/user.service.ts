@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/User';
 import { Repository } from 'typeorm';
+import UserResponseDto from './dto/UserResponseDto';
+import { plainToInstance } from 'class-transformer';
+import createUserDto from './dto/createUserDto';
+import UpdateUserDto from './dto/updateUserDto';
 
 @Injectable()
 export class UserService {
@@ -10,28 +14,68 @@ export class UserService {
         private readonly userRepository: Repository<User>
     ) { }
 
-    async findAll(): Promise<User[]> {
-        return await this.userRepository.find();
+    async findAll(): Promise<UserResponseDto[]> {
+        const users = await this.userRepository.find({
+            // select: [
+            //     'userId',
+            //     'fullName',
+            //     'email',
+            //     'username',
+            //     'avatarUrl',
+            //     'bio',
+            //     'isActive',
+            //     'createdAt',
+            // ],
+        });
+        return plainToInstance(UserResponseDto, users, {
+            excludeExtraneousValues: true
+        });
     }
 
-    async findOne(id: number): Promise<User> {
+    async findOne(userId: number): Promise<UserResponseDto> {
         const user = await this.userRepository.findOne({
-            where: { id },
-            select: ["id", "name", "email"]
+            where: { userId },
+            // select: [
+            //     'userId',
+            //     'fullName',
+            //     'email',
+            //     'username',
+            //     'avatarUrl',
+            //     'bio',
+            //     'isActive',
+            //     'createdAt',
+            // ],
         });
         if (!user) {
-            throw new NotFoundException(`User with ID ${id} not found`);
+            throw new HttpException(`User with ID ${userId} not found`, HttpStatus.NOT_FOUND);
         }
-        return user;
+        return plainToInstance(UserResponseDto, user, {
+            excludeExtraneousValues: true
+        });
     }
 
-    async create(data: Partial<User>): Promise<User> {
-        const user = this.userRepository.create(data);
-        return this.userRepository.save(user);
+    async create(createUserDto: createUserDto): Promise<UserResponseDto> {
+        const existingUser = await this.userRepository.findOne({ where: { email: createUserDto.email } });
+        if (existingUser) {
+            throw new BadRequestException('Email is already in use');
+        }
+
+        const existingUsername = await this.userRepository.findOne({ where: { username: createUserDto.username } });
+        if (existingUsername) {
+            throw new BadRequestException('Username is already taken');
+        }
+
+        const user = this.userRepository.create(createUserDto);
+        user.createdAt = new Date;
+        user.otpGenaratedTime = new Date;
+        const savedUser = await this.userRepository.save(user);
+        return plainToInstance(UserResponseDto, savedUser, {
+            excludeExtraneousValues: true
+        });
     }
 
-    async update(id: number, data: Partial<User>): Promise<User> {
-        await this.userRepository.update(id, data);
+    async update(id: number, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
+        await this.userRepository.update(id, updateUserDto);
         return this.findOne(id);
     }
 
