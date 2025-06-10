@@ -24,4 +24,7 @@ export default class UserResponseDto {
 
     @Expose()
     createdAt: Date;
+
+    // @Expose()
+    // password: string;
 }

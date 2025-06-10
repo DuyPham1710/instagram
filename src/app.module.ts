@@ -1,24 +1,42 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/User';
+import { LoggingMiddleware } from './middleware/logging/logging.middleware';
+import { AuthModule } from './modules/auth/auth.module';
+import path from 'path';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [UserModule,
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true, }),
+    UserModule,
     TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'root',
-      database: 'instagram',
+      type: process.env.DB_TYPE as any,
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT as any,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       entities: [User],     // list entity refactor
       synchronize: true,  // tự động tạo bảng từ entity (Chỉ dùng trong môi trường dev)
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer
+  //     .apply(LoggingMiddleware)
+  //     .forRoutes(
+  //       {
+  //         path: '/users',
+  //         method: RequestMethod.ALL
+  //       }
+  //     );
+  // }
+}

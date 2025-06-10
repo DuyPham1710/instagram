@@ -39,4 +39,7 @@ export class User {
 
     @CreateDateColumn()
     createdAt: Date;
+
+    @Column({ nullable: true })
+    refreshToken: string;
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/User';
 import { Repository } from 'typeorm';
@@ -6,6 +6,7 @@ import UserResponseDto from './dto/UserResponseDto';
 import { plainToInstance } from 'class-transformer';
 import createUserDto from './dto/createUserDto';
 import UpdateUserDto from './dto/updateUserDto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -15,18 +16,7 @@ export class UserService {
     ) { }
 
     async findAll(): Promise<UserResponseDto[]> {
-        const users = await this.userRepository.find({
-            // select: [
-            //     'userId',
-            //     'fullName',
-            //     'email',
-            //     'username',
-            //     'avatarUrl',
-            //     'bio',
-            //     'isActive',
-            //     'createdAt',
-            // ],
-        });
+        const users = await this.userRepository.find();
         return plainToInstance(UserResponseDto, users, {
             excludeExtraneousValues: true
         });
@@ -34,18 +24,9 @@ export class UserService {
 
     async findOne(userId: number): Promise<UserResponseDto> {
         const user = await this.userRepository.findOne({
-            where: { userId },
-            // select: [
-            //     'userId',
-            //     'fullName',
-            //     'email',
-            //     'username',
-            //     'avatarUrl',
-            //     'bio',
-            //     'isActive',
-            //     'createdAt',
-            // ],
+            where: { userId }
         });
+
         if (!user) {
             throw new HttpException(`User with ID ${userId} not found`, HttpStatus.NOT_FOUND);
         }
@@ -54,7 +35,7 @@ export class UserService {
         });
     }
 
-    async create(createUserDto: createUserDto): Promise<UserResponseDto> {
+    async register(createUserDto: createUserDto): Promise<UserResponseDto> {
         const existingUser = await this.userRepository.findOne({ where: { email: createUserDto.email } });
         if (existingUser) {
             throw new BadRequestException('Email is already in use');
@@ -65,13 +46,53 @@ export class UserService {
             throw new BadRequestException('Username is already taken');
         }
 
+        // generate otp and send to email
+
         const user = this.userRepository.create(createUserDto);
         user.createdAt = new Date;
         user.otpGenaratedTime = new Date;
+
+        user.password = await bcrypt.hash(createUserDto.password, 10);
+
         const savedUser = await this.userRepository.save(user);
         return plainToInstance(UserResponseDto, savedUser, {
             excludeExtraneousValues: true
         });
+    }
+
+    async findByUsername(username: string): Promise<User> {
+        const user = await this.userRepository.findOne({ where: { username } });
+        if (!user) {
+            throw new HttpException(`User with username ${username} not found`, HttpStatus.NOT_FOUND);
+        }
+        return user;
+    }
+
+    async validateUser(username: string, password: string): Promise<UserResponseDto> {
+        const user = await this.findByUsername(username);
+
+        const auth = await bcrypt.compare(password, user.password);
+        if (!auth) {
+            throw new UnauthorizedException('Invalid password');
+        }
+        return user;
+    }
+
+
+    async updateRefreshToken(userId: number, refreshToken: string) {
+        const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+        await this.userRepository.update(userId, { refreshToken: hashedRefreshToken });
+    }
+
+    async verifyRefreshToken(refreshToken: string, userId: number) {
+        const user = await this.userRepository.findOne({ where: { userId } });
+        if (user) {
+            const status = await bcrypt.compare(refreshToken, user.refreshToken);
+            if (status) {
+                return user;
+            }
+        }
+        return null;
     }
 
     async update(id: number, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
