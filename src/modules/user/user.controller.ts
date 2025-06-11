@@ -19,7 +19,7 @@ export class UserController {
 
     @Get()
     getAll(@Req() req: Request & { user: string }): Promise<UserResponseDto[]> {
-        console.log(req.user);
+        // console.log(req.user);
         return this.userService.findAll();
     }
 

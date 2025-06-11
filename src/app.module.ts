@@ -8,6 +8,7 @@ import { LoggingMiddleware } from './middleware/logging/logging.middleware';
 import { AuthModule } from './modules/auth/auth.module';
 import path from 'path';
 import { ConfigModule } from '@nestjs/config';
+import { PostModule } from './modules/post/post.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ConfigModule } from '@nestjs/config';
       synchronize: true,  // tự động tạo bảng từ entity (Chỉ dùng trong môi trường dev)
     }),
     AuthModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [AppService],

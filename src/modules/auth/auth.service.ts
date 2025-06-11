@@ -11,8 +11,9 @@ export class AuthService {
     ) { }
 
     async login(user: UserResponseDto) {
-        const payload = { username: user.username, sub: user.userId, expiresIn: process.env.JWT_TOKEN_EXPIRE };
+        const payload = { username: user.username, sub: user.userId };
         const refreshToken = this.jwtService.sign(payload, { expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRE });
+
         await this.userService.updateRefreshToken(user.userId, refreshToken);
         return {
             token: this.jwtService.sign(payload),
