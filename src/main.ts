@@ -29,6 +29,7 @@ async function bootstrap() {
     .setDescription('API for Instagram')
     .setVersion('1.0')
     .addTag('instagram')
+    .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);

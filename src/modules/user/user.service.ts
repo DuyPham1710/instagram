@@ -7,6 +7,7 @@ import { plainToInstance } from 'class-transformer';
 import createUserDto from './dto/createUserDto';
 import UpdateUserDto from './dto/updateUserDto';
 import * as bcrypt from 'bcrypt';
+import { generateOtp } from 'src/utils/OtpUtil';
 
 @Injectable()
 export class UserService {
@@ -47,9 +48,14 @@ export class UserService {
         }
 
         // generate otp and send to email
+        const otp: string = generateOtp(6);
 
+
+
+        // send otp to email
         const user = this.userRepository.create(createUserDto);
         user.createdAt = new Date;
+        user.otp = otp;
         user.otpGenaratedTime = new Date;
 
         user.password = await bcrypt.hash(createUserDto.password, 10);
@@ -66,6 +72,16 @@ export class UserService {
             throw new HttpException(`User with username ${username} not found`, HttpStatus.NOT_FOUND);
         }
         return user;
+    }
+
+    async findByEmail(email: string): Promise<UserResponseDto> {
+        const user = await this.userRepository.findOne({ where: { email } });
+        if (!user) {
+            throw new HttpException(`User with email ${email} not found`, HttpStatus.NOT_FOUND);
+        }
+        return plainToInstance(UserResponseDto, user, {
+            excludeExtraneousValues: true
+        });
     }
 
     async validateUser(username: string, password: string): Promise<UserResponseDto> {

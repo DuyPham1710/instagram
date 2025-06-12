@@ -6,27 +6,33 @@ import {
     ParseIntPipe,
     Post,
     Put,
-    Req
+    Req,
+    UseGuards
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import createUserDto from './dto/createUserDto';
 import UpdateUserDto from './dto/updateUserDto';
 import UserResponseDto from './dto/UserResponseDto';
+import { JwtAuthGuard } from 'src/guard/jwt-auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) { }
 
+    @UseGuards(JwtAuthGuard)
     @Get()
     getAll(@Req() req: Request & { user: string }): Promise<UserResponseDto[]> {
         // console.log(req.user);
         return this.userService.findAll();
     }
 
-    @Get(':id')
-    getOne(@Param('id') id: number): Promise<UserResponseDto> {
-        return this.userService.findOne(id);
-    }
+    // @UseGuards(JwtAuthGuard)
+    // @Get(':id')
+    // getOne(@Param('id') id: number): Promise<UserResponseDto> {
+    //     return this.userService.findOne(id);
+    // }
 
     // @Post()
     // create(@Body() createUserDto: createUserDto): Promise<UserResponseDto> {
@@ -41,5 +47,11 @@ export class UserController {
     @Delete(':id')
     delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
         return this.userService.remove(id);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('profile')
+    profile(@Req() req: any) {
+        return req.user;
     }
 }

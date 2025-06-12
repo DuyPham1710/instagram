@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import createUserDto from '../user/dto/createUserDto';
 import UserResponseDto from '../user/dto/UserResponseDto';
 import { LocalAuthGuard } from 'src/guard/local-auth.guard';
 import { JwtAuthGuard } from 'src/guard/jwt-auth.guard';
+import { VerifyAccountDto } from '../user/dto/VerifyAccountDto';
 
 @Controller('auth')
 export class AuthController {
@@ -36,9 +37,23 @@ export class AuthController {
     return this.authService.login(user);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  profile(@Req() req: any) {
-    return req.user;
+  @Patch('verify-account')
+  verifyAccount(@Body() verifyAccountDto: VerifyAccountDto) {
+    return this.authService.verifyAccount(verifyAccountDto);
+  }
+
+  @Patch('resend-otp')
+  resendOtp() {
+
+  }
+
+  @Patch('forgot-password')
+  forgotPassword() {
+
+  }
+
+  @Patch('reset-password')
+  resetPassword() {
+
   }
 }

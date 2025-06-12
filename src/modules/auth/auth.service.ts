@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import UserResponseDto from '../user/dto/UserResponseDto';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
+import { VerifyAccountDto } from '../user/dto/VerifyAccountDto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -32,4 +34,20 @@ export class AuthService {
         return null;
     }
 
+    async verifyAccount(verifyAccountDto: VerifyAccountDto): Promise<UserResponseDto> {
+        const user = await this.userService.findByEmail(verifyAccountDto.email);
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        if (user.otp === verifyAccountDto.otp && user.otpGenaratedTime > new Date(Date.now() - 1000 * 60 * 5)) {
+            user.isActive = true;
+            await this.userService.update(user.userId, user);
+
+            return plainToInstance(UserResponseDto, user, {
+                excludeExtraneousValues: true
+            });
+        }
+        throw new UnauthorizedException('OTP is invalid or has expired. Please regenerate a new OTP and try again.');
+    }
 }

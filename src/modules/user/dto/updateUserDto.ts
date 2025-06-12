@@ -1,4 +1,6 @@
 import {
+    IsBoolean,
+    IsDate,
     IsEmail,
     IsNotEmpty,
     IsOptional,
@@ -35,4 +37,16 @@ export default class UpdateUserDto {
     @IsOptional()
     @IsString()
     avatarUrl?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    isActive?: boolean;
+
+    @IsOptional()
+    @IsString()
+    otp?: string;
+
+    @IsOptional()
+    @IsDate()
+    otpGenaratedTime?: Date;
 }

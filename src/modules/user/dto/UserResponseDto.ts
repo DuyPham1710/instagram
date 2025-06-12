@@ -23,6 +23,12 @@ export default class UserResponseDto {
     isActive: boolean;
 
     @Expose()
+    otp: string;
+
+    @Expose()
+    otpGenaratedTime: Date;
+
+    @Expose()
     createdAt: Date;
 
     // @Expose()
