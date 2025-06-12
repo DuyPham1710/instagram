@@ -9,51 +9,51 @@ import { VerifyAccountDto } from '../user/dto/VerifyAccountDto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UserService
-  ) { }
+    constructor(
+        private readonly authService: AuthService,
+        private readonly userService: UserService
+    ) { }
 
-  @Post('register')
-  register(@Body() createUserDto: createUserDto): Promise<UserResponseDto> {
-    return this.userService.register(createUserDto);
-  }
-
-  @UseGuards(LocalAuthGuard)
-  @Post('login')
-  login(@Req() userLoginRequest: any) {
-    return this.authService.login(userLoginRequest.user);
-  }
-
-  @Post('refresh-token')
-  async refreshToken(@Body() { refreshToken }: { refreshToken: string }) {
-    if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token is required');
+    @Post('register')
+    register(@Body() createUserDto: createUserDto): Promise<UserResponseDto> {
+        return this.userService.register(createUserDto);
     }
-    const user = await this.authService.verifyRefreshToken(refreshToken);
-    if (!user) {
-      throw new UnauthorizedException('Invalid refresh token');
+
+    @UseGuards(LocalAuthGuard)
+    @Post('login')
+    login(@Req() userLoginRequest: any) {
+        return this.authService.login(userLoginRequest.user);
     }
-    return this.authService.login(user);
-  }
 
-  @Patch('verify-account')
-  verifyAccount(@Body() verifyAccountDto: VerifyAccountDto) {
-    return this.authService.verifyAccount(verifyAccountDto);
-  }
+    @Post('refresh-token')
+    async refreshToken(@Body() { refreshToken }: { refreshToken: string }) {
+        if (!refreshToken) {
+            throw new UnauthorizedException('Refresh token is required');
+        }
+        const user = await this.authService.verifyRefreshToken(refreshToken);
+        if (!user) {
+            throw new UnauthorizedException('Invalid refresh token');
+        }
+        return this.authService.login(user);
+    }
 
-  @Patch('resend-otp')
-  resendOtp() {
+    @Patch('verify-account')
+    verifyAccount(@Body() verifyAccountDto: VerifyAccountDto) {
+        return this.authService.verifyAccount(verifyAccountDto);
+    }
 
-  }
+    @Patch('resend-otp')
+    resendOtp() {
 
-  @Patch('forgot-password')
-  forgotPassword() {
+    }
 
-  }
+    @Patch('forgot-password')
+    forgotPassword() {
 
-  @Patch('reset-password')
-  resetPassword() {
+    }
 
-  }
+    @Patch('reset-password')
+    resetPassword() {
+
+    }
 }

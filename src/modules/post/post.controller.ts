@@ -6,26 +6,26 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 @ApiBearerAuth()
 @Controller('post')
 export class PostController {
-  constructor(private readonly postService: PostService) { }
+    constructor(private readonly postService: PostService) { }
 
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  getAllPostsByUser() {
-    return "Get All Posts By User";
-  }
+    @UseGuards(JwtAuthGuard)
+    @Get()
+    getAllPostsByUser() {
+        return "Get All Posts By User";
+    }
 
-  @Post()
-  createPost() {
+    @Post()
+    createPost() {
 
-  }
+    }
 
-  @Patch()
-  updatePost() {
+    @Patch()
+    updatePost() {
 
-  }
+    }
 
-  @Delete()
-  deletePost() {
+    @Delete()
+    deletePost() {
 
-  }
+    }
 }
