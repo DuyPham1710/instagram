@@ -6,6 +6,10 @@ import UserResponseDto from '../user/dto/UserResponseDto';
 import { LocalAuthGuard } from 'src/guard/local-auth.guard';
 import { JwtAuthGuard } from 'src/guard/jwt-auth.guard';
 import { VerifyAccountDto } from '../user/dto/VerifyAccountDto';
+import ResetPasswordDto from '../user/dto/resetPasswordDto';
+import { EmailDto } from '../user/dto/emailDto';
+import { ApiBody } from '@nestjs/swagger';
+import { LoginDto } from '../user/dto/LoginDto';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +25,7 @@ export class AuthController {
 
     @UseGuards(LocalAuthGuard)
     @Post('login')
+    @ApiBody({ type: LoginDto })
     login(@Req() userLoginRequest: any) {
         return this.authService.login(userLoginRequest.user);
     }
@@ -43,17 +48,17 @@ export class AuthController {
     }
 
     @Patch('resend-otp')
-    resendOtp() {
-
+    resendOtp(@Body() emailDto: EmailDto) {
+        return this.authService.resendOtp(emailDto.email);
     }
 
     @Patch('forgot-password')
-    forgotPassword() {
-
+    forgotPassword(@Body() emailDto: EmailDto) {
+        return this.authService.resendOtp(emailDto.email);
     }
 
     @Patch('reset-password')
-    resetPassword() {
-
+    resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+        return this.authService.resetPassword(resetPasswordDto);
     }
 }

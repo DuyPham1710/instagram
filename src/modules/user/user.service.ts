@@ -8,12 +8,16 @@ import createUserDto from './dto/createUserDto';
 import UpdateUserDto from './dto/updateUserDto';
 import * as bcrypt from 'bcrypt';
 import { generateOtp } from 'src/utils/OtpUtil';
+import { MailerService } from '@nestjs-modules/mailer';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User)
-        private readonly userRepository: Repository<User>
+        private readonly userRepository: Repository<User>,
+        private readonly mailerService: MailerService,
+        private readonly mailService: MailService
     ) { }
 
     async findAll(): Promise<UserResponseDto[]> {
@@ -50,9 +54,20 @@ export class UserService {
         // generate otp and send to email
         const otp: string = generateOtp(6);
 
+        await this.mailService.sendMail(createUserDto.email, createUserDto.fullName, otp);
+        // await this.mailerService
+        //     .sendMail({
+        //         to: createUserDto.email,
+        //         subject: 'Active Account',
+        //         text: 'Active Account',
+        //         template: 'mail_template',
+        //         context: {
+        //             fullName: createUserDto.fullName,
+        //             otp: otp,
+        //         },
+        //     })
 
 
-        // send otp to email
         const user = this.userRepository.create(createUserDto);
         user.createdAt = new Date;
         user.otp = otp;
@@ -74,14 +89,12 @@ export class UserService {
         return user;
     }
 
-    async findByEmail(email: string): Promise<UserResponseDto> {
+    async findByEmail(email: string): Promise<User> {
         const user = await this.userRepository.findOne({ where: { email } });
         if (!user) {
             throw new HttpException(`User with email ${email} not found`, HttpStatus.NOT_FOUND);
         }
-        return plainToInstance(UserResponseDto, user, {
-            excludeExtraneousValues: true
-        });
+        return user;
     }
 
     async validateUser(username: string, password: string): Promise<UserResponseDto> {
@@ -91,6 +104,11 @@ export class UserService {
         if (!auth) {
             throw new UnauthorizedException('Invalid password');
         }
+
+        if (!user.isActive) {
+            throw new UnauthorizedException('Your account is not activated. Please verify your email to activate your account');
+        }
+
         return user;
     }
 

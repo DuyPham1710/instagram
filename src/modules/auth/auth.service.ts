@@ -1,15 +1,21 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import UserResponseDto from '../user/dto/UserResponseDto';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { VerifyAccountDto } from '../user/dto/VerifyAccountDto';
 import { plainToInstance } from 'class-transformer';
+import ResetPasswordDto from '../user/dto/resetPasswordDto';
+import { MailService } from '../mail/mail.service';
+import { generateOtp } from 'src/utils/OtpUtil';
+import UpdateUserDto from '../user/dto/updateUserDto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly jwtService: JwtService,
-        private readonly userService: UserService
+        private readonly userService: UserService,
+        private readonly mailService: MailService
     ) { }
 
     async login(user: UserResponseDto) {
@@ -49,5 +55,43 @@ export class AuthService {
             });
         }
         throw new UnauthorizedException('OTP is invalid or has expired. Please regenerate a new OTP and try again.');
+    }
+
+    async resendOtp(email: string) {
+        const user = await this.userService.findByEmail(email);
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        const otp: string = generateOtp(6);
+
+        await this.mailService.sendMail(user.email, user.fullName, otp);
+
+        const updateUser: UpdateUserDto = {
+            otp: otp,
+            otpGenaratedTime: new Date()
+        }
+
+        const userUpdated = await this.userService.update(user.userId, updateUser);
+
+        return {
+            message: 'A new OTP has been sent to your email. Please check your inbox and verify account within 5 minute.'
+        };
+    }
+
+    async resetPassword(resetPasswordDto: ResetPasswordDto) {
+        const user = await this.userService.findByEmail(resetPasswordDto.email);
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        if (resetPasswordDto.newPassword === resetPasswordDto.confirmNewPassword) {
+            user.password = await bcrypt.hash(resetPasswordDto.newPassword, 10);
+            await this.userService.update(user.userId, user);
+            return {
+                message: 'Password reset successfully'
+            };
+        }
+        throw new BadRequestException('Password and confirm password do not match. Please try again!');
     }
 }

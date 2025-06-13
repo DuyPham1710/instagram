@@ -22,11 +22,11 @@ export default class UserResponseDto {
     @Expose()
     isActive: boolean;
 
-    @Expose()
-    otp: string;
+    // @Expose()
+    // otp: string;
 
-    @Expose()
-    otpGenaratedTime: Date;
+    // @Expose()
+    // otpGenaratedTime: Date;
 
     @Expose()
     createdAt: Date;

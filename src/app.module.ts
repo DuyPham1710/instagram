@@ -6,15 +6,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/User';
 import { LoggingMiddleware } from './middleware/logging/logging.middleware';
 import { AuthModule } from './modules/auth/auth.module';
-import path from 'path';
+import * as path from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { PostModule } from './modules/post/post.module';
-import { MailModule } from './modules/mail/mail.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true, }),
         UserModule,
+        AuthModule,
+        PostModule,
         TypeOrmModule.forRoot({
             type: process.env.DB_TYPE as any,
             host: process.env.DB_HOST,
@@ -25,9 +28,35 @@ import { MailModule } from './modules/mail/mail.module';
             entities: [User],     // list entity refactor
             synchronize: true,  // tự động tạo bảng từ entity (Chỉ dùng trong môi trường dev)
         }),
-        AuthModule,
-        PostModule,
-        MailModule,
+
+        // mailer
+        MailerModule.forRootAsync({
+            useFactory: () => ({
+                transport: {
+                    host: process.env.MAIL_HOST,
+                    port: process.env.MAIL_PORT as any,
+                    // ignoreTLS: true,
+                    secure: true,
+                    auth: {
+                        user: process.env.MAIL_USER,
+                        pass: process.env.MAIL_PASSWORD,
+                    },
+                },
+                defaults: {
+                    from: '"No Reply" <no-reply@localhost>',
+                },
+                // preview: true,
+                template: {
+                    dir: path.join(__dirname, 'modules/mail/templates'),
+                    adapter: new HandlebarsAdapter(),
+                    options: {
+                        strict: true,
+                    },
+                },
+            }),
+
+
+        }),
     ],
     controllers: [AppController],
     providers: [AppService],
