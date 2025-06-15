@@ -7,10 +7,10 @@ export class Follow {
     followId: number;
 
     @ManyToOne(() => User)
-    follower: User; // người theo dõi
+    follower: User; // người theo dõi bạn
 
     @ManyToOne(() => User)
-    following: User; // người được theo dõi
+    following: User; // người bạn theo dõi
 
     @CreateDateColumn()
     createdAt: Date;

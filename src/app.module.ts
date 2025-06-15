@@ -16,6 +16,8 @@ import { Like } from './entities/Like';
 import { Comment } from './entities/Comment';
 import { Follow } from './entities/Follow';
 import { CommentModule } from './modules/comment/comment.module';
+import { LikeModule } from './modules/like/like.module';
+import { FollowModule } from './modules/follow/follow.module';
 
 @Module({
     imports: [
@@ -63,6 +65,10 @@ import { CommentModule } from './modules/comment/comment.module';
 
 
         }),
+
+        LikeModule,
+
+        FollowModule,
     ],
     controllers: [AppController],
     providers: [AppService],
