@@ -1,7 +1,7 @@
 import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/User';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import UserResponseDto from './dto/UserResponseDto';
 import { plainToInstance } from 'class-transformer';
 import createUserDto from './dto/createUserDto';
@@ -136,5 +136,23 @@ export class UserService {
 
     async remove(id: number): Promise<void> {
         await this.userRepository.delete(id);
+    }
+
+    async searchUser(query: string): Promise<UserResponseDto[]> {
+        try {
+            const users = await this.userRepository.find({
+                where: [
+                    { username: Like(`%${query}%`) },
+                    { fullName: Like(`%${query}%`) }
+                ],
+            });
+
+            return plainToInstance(UserResponseDto, users, {
+                excludeExtraneousValues: true
+            });
+        } catch (error) {
+            console.error('Error searching user:', error);
+            throw error;
+        }
     }
 }

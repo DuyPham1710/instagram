@@ -6,6 +6,7 @@ import {
     ParseIntPipe,
     Post,
     Put,
+    Query,
     Req,
     UseGuards
 } from '@nestjs/common';
@@ -53,5 +54,10 @@ export class UserController {
     @Get('profile')
     profile(@Req() req: any) {
         return req.user;
+    }
+
+    @Get('search')
+    search(@Query('query') query: string): Promise<UserResponseDto[]> {
+        return this.userService.searchUser(query);
     }
 }
