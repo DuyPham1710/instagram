@@ -18,6 +18,8 @@ import { Follow } from './entities/Follow';
 import { CommentModule } from './modules/comment/comment.module';
 import { LikeModule } from './modules/like/like.module';
 import { FollowModule } from './modules/follow/follow.module';
+import { SavePostModule } from './modules/save-post/save-post.module';
+import { SavePost } from './entities/SavePost';
 
 @Module({
     imports: [
@@ -33,7 +35,7 @@ import { FollowModule } from './modules/follow/follow.module';
             username: process.env.DB_USERNAME,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME,
-            entities: [User, Post, Comment, Like, Follow],     // list entity refactor
+            entities: [User, Post, Comment, Like, Follow, SavePost],     // list entity refactor
             synchronize: true,  // tự động tạo bảng từ entity (Chỉ dùng trong môi trường dev)
         }),
 
@@ -69,6 +71,8 @@ import { FollowModule } from './modules/follow/follow.module';
         LikeModule,
 
         FollowModule,
+
+        SavePostModule,
     ],
     controllers: [AppController],
     providers: [AppService],
