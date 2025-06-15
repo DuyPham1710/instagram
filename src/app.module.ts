@@ -11,6 +11,10 @@ import { ConfigModule } from '@nestjs/config';
 import { PostModule } from './modules/post/post.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { Post } from './entities/Post';
+import { Like } from './entities/Like';
+import { Comment } from './entities/Comment';
+import { Follow } from './entities/Follow';
 
 @Module({
     imports: [
@@ -25,7 +29,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
             username: process.env.DB_USERNAME,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME,
-            entities: [User],     // list entity refactor
+            entities: [User, Post, Comment, Like, Follow],     // list entity refactor
             synchronize: true,  // tự động tạo bảng từ entity (Chỉ dùng trong môi trường dev)
         }),
 
