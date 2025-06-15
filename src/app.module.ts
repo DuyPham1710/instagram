@@ -15,6 +15,7 @@ import { Post } from './entities/Post';
 import { Like } from './entities/Like';
 import { Comment } from './entities/Comment';
 import { Follow } from './entities/Follow';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
     imports: [
@@ -22,6 +23,7 @@ import { Follow } from './entities/Follow';
         UserModule,
         AuthModule,
         PostModule,
+        CommentModule,
         TypeOrmModule.forRoot({
             type: process.env.DB_TYPE as any,
             host: process.env.DB_HOST,
