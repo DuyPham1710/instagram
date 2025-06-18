@@ -8,56 +8,75 @@ import {
     Put,
     Query,
     Req,
-    UseGuards
+    UseGuards,
+    UseInterceptors,
+    UploadedFile,
+    Patch
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import createUserDto from './dto/createUserDto';
 import UpdateUserDto from './dto/updateUserDto';
 import UserResponseDto from './dto/UserResponseDto';
 import { JwtAuthGuard } from 'src/guard/jwt-auth.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { storage } from '../cloudinary/cloudinary.storage';
+import { Public } from 'src/utils/decorator.customize.utils';
 
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) { }
 
-    @UseGuards(JwtAuthGuard)
     @Get()
     getAll(@Req() req: Request & { user: string }): Promise<UserResponseDto[]> {
         // console.log(req.user);
         return this.userService.findAll();
     }
 
-    // @UseGuards(JwtAuthGuard)
-    // @Get(':id')
-    // getOne(@Param('id') id: number): Promise<UserResponseDto> {
-    //     return this.userService.findOne(id);
-    // }
-
-    // @Post()
-    // create(@Body() createUserDto: createUserDto): Promise<UserResponseDto> {
-    //     return this.userService.create(createUserDto);
-    // }
-
-    @Put(':id')
-    update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
-        return this.userService.update(id, updateUserDto);
+    @Patch()
+    @UseInterceptors(FileInterceptor('file', { storage }))
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                fullName: { type: 'string', example: 'Nguyen Van A' },
+                email: { type: 'string', example: 'abc@gmail.com' },
+                username: { type: 'string', example: 'username123' },
+                password: { type: 'string', example: 'mypassword' },
+                bio: { type: 'string', example: 'This is my bio.' },
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                },
+            },
+        },
+    })
+    editProfile(
+        @Req() req: any,
+        @Body() updateUserDto: UpdateUserDto,
+        @UploadedFile() file: Express.Multer.File): Promise<UserResponseDto> {
+        if (file && file.path) {
+            updateUserDto.avatarUrl = file.path;
+        }
+        return this.userService.update(req.user.userId, updateUserDto);
     }
 
-    @Delete(':id')
-    delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
-        return this.userService.remove(id);
+    @Delete()
+    delete(@Req() req: any): Promise<{ message: string }> {
+        return this.userService.remove(req.user.userId);
     }
 
-    @UseGuards(JwtAuthGuard)
     @Get('profile')
     profile(@Req() req: any) {
         return req.user;
     }
 
     @Get('search')
+    @Public()
     search(@Query('query') query: string): Promise<UserResponseDto[]> {
         return this.userService.searchUser(query);
     }
+
 }

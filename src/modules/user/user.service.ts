@@ -130,12 +130,14 @@ export class UserService {
     }
 
     async update(id: number, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
+        updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
         await this.userRepository.update(id, updateUserDto);
         return this.findOne(id);
     }
 
-    async remove(id: number): Promise<void> {
+    async remove(id: number): Promise<{ message: string }> {
         await this.userRepository.delete(id);
+        return { message: 'User deleted successfully' };
     }
 
     async searchUser(query: string): Promise<UserResponseDto[]> {

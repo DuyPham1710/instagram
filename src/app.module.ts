@@ -20,6 +20,7 @@ import { LikeModule } from './modules/like/like.module';
 import { FollowModule } from './modules/follow/follow.module';
 import { SavePostModule } from './modules/save-post/save-post.module';
 import { SavePost } from './entities/SavePost';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
 @Module({
     imports: [
@@ -69,10 +70,10 @@ import { SavePost } from './entities/SavePost';
         }),
 
         LikeModule,
-
         FollowModule,
-
         SavePostModule,
+        CloudinaryModule,
+
     ],
     controllers: [AppController],
     providers: [AppService],
