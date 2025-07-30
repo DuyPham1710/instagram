@@ -1,7 +1,7 @@
 import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/User';
-import { Like, Repository } from 'typeorm';
+import { Like, Not, Repository } from 'typeorm';
 import UserResponseDto from './dto/UserResponseDto';
 import { plainToInstance } from 'class-transformer';
 import createUserDto from './dto/createUserDto';
@@ -22,6 +22,13 @@ export class UserService {
 
     async findAll(): Promise<UserResponseDto[]> {
         const users = await this.userRepository.find();
+        return plainToInstance(UserResponseDto, users, {
+            excludeExtraneousValues: true
+        });
+    }
+
+    async findAllOther(userId: number): Promise<UserResponseDto[]> {
+        const users = await this.userRepository.find({ where: { userId: Not(userId) } });
         return plainToInstance(UserResponseDto, users, {
             excludeExtraneousValues: true
         });

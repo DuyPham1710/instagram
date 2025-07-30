@@ -12,6 +12,7 @@ import { PostModule } from './modules/post/post.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { Post } from './entities/Post';
+import { PostImage } from './entities/PostImage';
 import { Like } from './entities/Like';
 import { Comment } from './entities/Comment';
 import { Follow } from './entities/Follow';
@@ -36,7 +37,7 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
             username: process.env.DB_USERNAME,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME,
-            entities: [User, Post, Comment, Like, Follow, SavePost],     // list entity refactor
+            entities: [User, Post, PostImage, Comment, Like, Follow, SavePost],     // list entity refactor
             synchronize: true,  // tự động tạo bảng từ entity (Chỉ dùng trong môi trường dev)
         }),
 

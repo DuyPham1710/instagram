@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from 'src/entities/Post';
+import { PostImage } from 'src/entities/PostImage';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/CreatePostDto';
 import { User } from 'src/entities/User';
@@ -11,12 +12,17 @@ export class PostService {
     constructor(
         @InjectRepository(Post)
         private readonly postRepository: Repository<Post>,
+        @InjectRepository(PostImage)
+        private readonly postImageRepository: Repository<PostImage>,
         @InjectRepository(User)
         private readonly userRepository: Repository<User>
     ) { }
 
     async getAllPostsByUser(userId: number) {
-        const posts = await this.postRepository.find({ where: { user: { userId } } });
+        const posts = await this.postRepository.find({
+            where: { user: { userId } },
+            relations: ['images']
+        });
         return posts;
     }
 
@@ -28,8 +34,27 @@ export class PostService {
                 throw new NotFoundException('User not found');
             }
 
+            // Tạo post mới
+            // const post = this.postRepository.create({
+            //     caption: createPostDto.caption,
+            //     user
+            // });
             const post = this.postRepository.create({ ...createPostDto, user });
-            await this.postRepository.save(post);
+            const savedPost = await this.postRepository.save(post);
+
+            // Tạo các PostImage cho post
+            if (createPostDto.images && createPostDto.images.length > 0) {
+                const postImages = createPostDto.images.map(imageDto =>
+                    this.postImageRepository.create({
+                        imageUrl: imageDto.imageUrl,
+                        caption: imageDto.caption,
+                        order: imageDto.order || 0,
+                        post: savedPost
+                    })
+                );
+                await this.postImageRepository.save(postImages);
+            }
+
             return { message: 'Post created successfully' };
         } catch (error) {
             console.error('Error creating post:', error);
@@ -41,7 +66,7 @@ export class PostService {
         try {
             const post = await this.postRepository.findOne({
                 where: { postId: updatePostDto.postId },
-                relations: ['user']
+                relations: ['user', 'images']
             });
 
             if (!post) {
@@ -52,7 +77,30 @@ export class PostService {
                 throw new ForbiddenException('You are not allowed to update this post');
             }
 
-            await this.postRepository.update(post.postId, updatePostDto);
+            // Cập nhật thông tin cơ bản của post
+            if (updatePostDto.caption !== undefined) {
+                await this.postRepository.update(post.postId, { caption: updatePostDto.caption });
+            }
+
+            // Cập nhật images nếu có
+            if (updatePostDto.images) {
+                // Xóa tất cả images cũ
+                await this.postImageRepository.delete({ post: { postId: post.postId } });
+
+                // Tạo images mới
+                if (updatePostDto.images.length > 0) {
+                    const postImages = updatePostDto.images.map(imageDto =>
+                        this.postImageRepository.create({
+                            imageUrl: imageDto.imageUrl,
+                            caption: imageDto.caption,
+                            order: imageDto.order || 0,
+                            post: { postId: post.postId }
+                        })
+                    );
+                    await this.postImageRepository.save(postImages);
+                }
+            }
+
             return { message: 'Post updated successfully' };
         } catch (error) {
             console.error('Error updating post:', error);

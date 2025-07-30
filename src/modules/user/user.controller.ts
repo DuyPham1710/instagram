@@ -34,6 +34,11 @@ export class UserController {
         return this.userService.findAll();
     }
 
+    @Get('other')
+    getAllUserOther(@Req() req: any): Promise<UserResponseDto[]> {
+        return this.userService.findAllOther(req.user.userId);
+    }
+
     @Patch()
     @UseInterceptors(FileInterceptor('file', { storage }))
     @ApiConsumes('multipart/form-data')

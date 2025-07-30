@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { CreatePostImageDto } from "./CreatePostDto";
 
 export class UpdatePostDto {
     @ApiProperty({ example: 1 })
@@ -7,15 +8,30 @@ export class UpdatePostDto {
     @IsNumber()
     postId: number;
 
-    @ApiProperty({ example: '' })
-    @IsNotEmpty()
-    @IsString()
-    contentUrl: string;
+    @ApiProperty({
+        type: [CreatePostImageDto],
+        example: [
+            {
+                imageUrl: 'https://example.com/image1.jpg',
+                caption: 'First image',
+                order: 0
+            },
+            {
+                imageUrl: 'https://example.com/image2.jpg',
+                caption: 'Second image',
+                order: 1
+            }
+        ],
+        required: false
+    })
+    @IsOptional()
+    @IsArray()
+    images?: CreatePostImageDto[];
 
-    @ApiProperty({ example: 'This is a caption' })
-    @IsNotEmpty()
+    @ApiProperty({ example: 'This is a caption', required: false })
+    @IsOptional()
     @IsString()
-    caption: string;
+    caption?: string;
 
     createdAt: Date = new Date();
 }

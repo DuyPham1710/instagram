@@ -1,13 +1,11 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User";
+import { PostImage } from "./PostImage";
 
 @Entity('posts')
 export class Post {
     @PrimaryGeneratedColumn()
     postId: number;
-
-    @Column()
-    contentUrl: string;
 
     @Column({ nullable: true })
     caption: string;
@@ -15,6 +13,9 @@ export class Post {
     @ManyToOne(() => User)
     user: User;
 
+    @OneToMany(() => PostImage, postImage => postImage.post, { cascade: true })
+    images: PostImage[];
+
     @CreateDateColumn()
     createdAt: Date;
-}
+}   
