@@ -19,6 +19,12 @@ export class PostController {
         return this.postService.getAllPostsByUser(userId);
     }
 
+    @Get('following')
+    getAllPostsFollowing(@Req() req: any) {
+        const userId = req.user.userId;
+        return this.postService.getAllPostsFollowing(userId);
+    }
+
     @Post()
     createPost(@Body() createPostDto: CreatePostDto, @Req() req: any) {
         const userId = req.user.userId;

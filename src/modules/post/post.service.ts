@@ -2,10 +2,13 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from 'src/entities/Post';
 import { PostImage } from 'src/entities/PostImage';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreatePostDto } from './dto/CreatePostDto';
 import { User } from 'src/entities/User';
 import { UpdatePostDto } from './dto/UpdatePostDto';
+import { Follow } from 'src/entities/Follow';
+import UserResponseDto from '../user/dto/UserResponseDto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class PostService {
@@ -15,8 +18,32 @@ export class PostService {
         @InjectRepository(PostImage)
         private readonly postImageRepository: Repository<PostImage>,
         @InjectRepository(User)
-        private readonly userRepository: Repository<User>
+        private readonly userRepository: Repository<User>,
+        @InjectRepository(Follow)
+        private readonly followRepository: Repository<Follow>
     ) { }
+
+    async getAllPostsFollowing(userId: number) {
+        const following = await this.followRepository.find({
+            where: { follower: { userId } },
+            relations: ['following']
+        });
+
+        const followingIds = following.map(follow => follow.following.userId);
+
+        const posts = await this.postRepository.find({
+            where: { user: { userId: In(followingIds) } },
+            relations: ['images', 'user']
+        });
+
+        posts.forEach(post => {
+            post.user = plainToInstance(UserResponseDto, post.user, {
+                excludeExtraneousValues: true,
+            }) as any;
+        });
+
+        return posts;
+    }
 
     async getAllPostsByUser(userId: number) {
         const posts = await this.postRepository.find({
