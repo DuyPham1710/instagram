@@ -1,98 +1,318 @@
+# 📸 Instagram Clone API
+
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  <img src="https://nestjs.com/img/logo-small.svg" width="120" alt="NestJS Logo" />
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+<p align="center">
+  <strong>Instagram Clone Backend API</strong> - A full-featured social media API built with NestJS, TypeORM, and MySQL
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## 🚀 Project Overview
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This is a comprehensive Instagram clone backend API that provides all the core features of a social media platform. Built with modern technologies and best practices, this project demonstrates advanced backend development skills including authentication, file uploads, real-time features, and database design.
 
-## Project setup
+### ✨ Key Features
+
+- **🔐 Authentication & Authorization**
+  - JWT-based authentication
+  - Email verification with OTP
+  - Password reset functionality
+  - Refresh token mechanism
+
+- **👥 User Management**
+  - User registration and login
+  - Profile management (avatar, bio, personal info)
+  - User search and discovery
+
+- **📱 Post Management**
+  - Create posts with multiple images
+  - Image upload to Cloudinary
+  - Post captions and descriptions
+  - Post editing and deletion
+
+- **❤️ Social Interactions**
+  - Like/unlike posts
+  - Comment on posts
+  - Follow/unfollow users
+  - Save posts to collections
+
+- **📧 Email Notifications**
+  - Welcome emails
+  - Password reset emails
+  - Account verification emails
+
+## 🛠️ Technology Stack
+
+### Backend Framework
+- **NestJS** - Progressive Node.js framework
+- **TypeScript** - Type-safe JavaScript
+- **TypeORM** - Object-Relational Mapping
+
+### Database
+- **MySQL** - Relational database
+- **TypeORM** - Database ORM with migrations
+
+### Authentication & Security
+- **Passport.js** - Authentication middleware
+- **JWT** - JSON Web Tokens
+- **bcrypt** - Password hashing
+- **class-validator** - Input validation
+
+### File Storage
+- **Cloudinary** - Cloud image storage
+- **Multer** - File upload handling
+
+### Email Service
+- **Nodemailer** - Email sending
+- **Handlebars** - Email templates
+
+### Development Tools
+- **ESLint** - Code linting
+- **Prettier** - Code formatting
+- **Jest** - Testing framework
+- **Swagger** - API documentation
+
+## 📋 Prerequisites
+
+Before running this project, make sure you have the following installed:
+
+- **Node.js** (v18 or higher)
+- **npm** or **yarn**
+- **MySQL** (v8.0 or higher)
+- **Git**
+
+## 🔧 Installation & Setup
+
+### 1. Clone the Repository
 
 ```bash
-$ npm install
+git clone <repository-url>
+cd instagram
 ```
 
-## Compile and run the project
+### 2. Install Dependencies
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+### 3. Environment Configuration
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+# Database Configuration
+DB_TYPE=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+DB_NAME=instagram_clone
+
+# JWT Configuration
+JWT_SECRET=your_jwt_secret_key
+JWT_REFRESH_SECRET=your_jwt_refresh_secret_key
+
+# Email Configuration (Gmail example)
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=465
+MAIL_USER=your_email@gmail.com
+MAIL_PASSWORD=your_app_password
+
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
+### 4. Database Setup
+
+1. Create a MySQL database:
+```sql
+CREATE DATABASE instagram_clone;
+```
+
+2. The application will automatically create tables using TypeORM's `synchronize: true` option (development only).
+
+### 5. Run the Application
 
 ```bash
-# unit tests
-$ npm run test
+# Development mode with hot reload
+npm run start:dev
 
-# e2e tests
-$ npm run test:e2e
+# Production mode
+npm run start:prod
 
-# test coverage
-$ npm run test:cov
+# Debug mode
+npm run start:debug
 ```
 
-## Deployment
+The API will be available at `http://localhost:3000`
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 📚 API Documentation
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Once the application is running, you can access the Swagger API documentation at:
+```
+http://localhost:3000/api
+```
+
+### Main API Endpoints
+
+#### Authentication
+- `POST /auth/register` - User registration
+- `POST /auth/login` - User login
+- `POST /auth/refresh` - Refresh access token
+- `POST /auth/verify-email` - Verify email with OTP
+- `POST /auth/forgot-password` - Request password reset
+- `POST /auth/reset-password` - Reset password
+
+#### Users
+- `GET /users/profile` - Get user profile
+- `PUT /users/profile` - Update user profile
+- `GET /users/search` - Search users
+- `POST /users/upload-avatar` - Upload profile picture
+
+#### Posts
+- `GET /posts` - Get all posts (with pagination)
+- `POST /posts` - Create new post
+- `GET /posts/:id` - Get specific post
+- `PUT /posts/:id` - Update post
+- `DELETE /posts/:id` - Delete post
+- `POST /posts/:id/images` - Upload images to post
+
+#### Social Interactions
+- `POST /likes/toggle` - Like/unlike post
+- `POST /comments` - Add comment
+- `PUT /comments/:id` - Update comment
+- `DELETE /comments/:id` - Delete comment
+- `POST /follows/toggle` - Follow/unfollow user
+- `POST /save-posts/toggle` - Save/unsave post
+
+## 🗄️ Database Schema
+
+### Core Entities
+
+#### Users
+- `userId` (Primary Key)
+- `fullName`, `email`, `username`
+- `password` (hashed)
+- `bio`, `avatarUrl`
+- `isActive`, `otp`, `refreshToken`
+
+#### Posts
+- `postId` (Primary Key)
+- `caption`
+- `userId` (Foreign Key)
+- `createdAt`
+
+#### PostImages
+- `imageId` (Primary Key)
+- `imageUrl`
+- `postId` (Foreign Key)
+
+#### Comments
+- `commentId` (Primary Key)
+- `content`
+- `userId`, `postId` (Foreign Keys)
+
+#### Likes
+- `likeId` (Primary Key)
+- `userId`, `postId` (Foreign Keys)
+
+#### Follows
+- `followId` (Primary Key)
+- `followerId`, `followingId` (Foreign Keys)
+
+#### SavePosts
+- `saveId` (Primary Key)
+- `userId`, `postId` (Foreign Keys)
+
+## 🧪 Testing
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Run unit tests
+npm run test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run e2e tests
+npm run test:e2e
+
+# Generate test coverage
+npm run test:cov
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 📦 Build & Deployment
 
-## Resources
+```bash
+# Build the application
+npm run build
 
-Check out a few resources that may come in handy when working with NestJS:
+# Start production server
+npm run start:prod
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## 🔒 Security Features
 
-## Support
+- **Password Hashing**: All passwords are hashed using bcrypt
+- **JWT Authentication**: Secure token-based authentication
+- **Input Validation**: Comprehensive validation using class-validator
+- **CORS Protection**: Configured for cross-origin requests
+- **Rate Limiting**: Built-in request rate limiting
+- **SQL Injection Protection**: TypeORM provides protection against SQL injection
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 🚀 Performance Optimizations
 
-## Stay in touch
+- **Database Indexing**: Proper indexing on frequently queried fields
+- **Lazy Loading**: Efficient relationship loading
+- **Caching**: JWT token caching
+- **Image Optimization**: Cloudinary handles image optimization
+- **Pagination**: Implemented for large datasets
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 📁 Project Structure
 
-## License
+```
+src/
+├── entities/           # Database entities/models
+├── modules/           # Feature modules
+│   ├── auth/         # Authentication module
+│   ├── user/         # User management
+│   ├── post/         # Post management
+│   ├── comment/      # Comment system
+│   ├── like/         # Like system
+│   ├── follow/       # Follow system
+│   ├── save-post/    # Save post functionality
+│   ├── mail/         # Email service
+│   └── cloudinary/   # File upload service
+├── middleware/       # Custom middleware
+├── guards/          # Authentication guards
+├── passport/        # Passport strategies
+├── utils/           # Utility functions
+└── exceptions/      # Custom exception filters
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Developer
+
+**Your Name** - Backend Developer
+
+- **Email**: your.email@example.com
+- **LinkedIn**: [Your LinkedIn Profile]
+- **GitHub**: [Your GitHub Profile]
+
+---
+
+⭐ **Star this repository if you find it helpful!**
