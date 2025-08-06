@@ -9,6 +9,7 @@ import { UpdatePostDto } from './dto/UpdatePostDto';
 import { Follow } from 'src/entities/Follow';
 import UserResponseDto from '../user/dto/UserResponseDto';
 import { plainToInstance } from 'class-transformer';
+import { Like } from 'src/entities/Like';
 
 @Injectable()
 export class PostService {
@@ -20,7 +21,9 @@ export class PostService {
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
         @InjectRepository(Follow)
-        private readonly followRepository: Repository<Follow>
+        private readonly followRepository: Repository<Follow>,
+        @InjectRepository(Like)
+        private readonly likeRepository: Repository<Like>,
     ) { }
 
     async getAllPostsFollowing(userId: number) {
@@ -42,7 +45,27 @@ export class PostService {
             }) as any;
         });
 
+        for (let i = 0; i < posts.length; i++) {
+            const likedPosts = await this.getLikedPostByPostId(posts[i].postId);
+            posts[i] = { ...posts[i], likePost: likedPosts } as any;
+        }
+
         return posts;
+    }
+
+    async getLikedPostByPostId(postId: number) {
+        const likedPost = await this.likeRepository.find({
+            where: { post: { postId } },
+            relations: ['user']
+        });
+
+        likedPost.forEach(like => {
+            like.user = plainToInstance(UserResponseDto, like.user, {
+                excludeExtraneousValues: true,
+            }) as any;
+        });
+
+        return likedPost;
     }
 
     async getAllPostsByUser(userId: number) {

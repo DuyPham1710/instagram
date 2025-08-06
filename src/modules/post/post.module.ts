@@ -6,10 +6,11 @@ import { Post } from 'src/entities/Post';
 import { PostImage } from 'src/entities/PostImage';
 import { User } from 'src/entities/User';
 import { Follow } from 'src/entities/Follow';
+import { Like } from 'src/entities/Like';
 
 @Module({
     controllers: [PostController],
     providers: [PostService],
-    imports: [TypeOrmModule.forFeature([Post, PostImage, User, Follow])],
+    imports: [TypeOrmModule.forFeature([Post, PostImage, User, Follow, Like])],
 })
 export class PostModule { }

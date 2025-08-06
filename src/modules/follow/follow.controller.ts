@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { FollowService } from './follow.service';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guard/jwt-auth.guard';
@@ -10,6 +10,15 @@ import { ToggleFollowDto } from './dto/ToggleFollowDto';
 export class FollowController {
   constructor(private readonly followService: FollowService) { }
 
+  @Get('get-followers/:id')
+  getFollowersByUserId(@Param('id') userId: number) {
+    return this.followService.getFollowers(userId);
+  }
+
+  @Get('get-following/:id')
+  getFollowingByUserId(@Param('id') userId: number) {
+    return this.followService.getFollowing(userId);
+  }
 
   @Get('get-followers')
   getFollowers(@Req() req: any) {

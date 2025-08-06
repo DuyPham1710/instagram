@@ -44,7 +44,7 @@ export class LikeService {
     async toggleLike(toggleLikeDto: ToggleLikeDto, userId: number) {
         try {
             let like: Like;
-
+            let likedPosts: Like[];
             // check like exist
             const existingLike = await this.likeRepository.findOne({
                 where: {
@@ -57,7 +57,8 @@ export class LikeService {
             if (existingLike) {
                 like = existingLike;
                 await this.likeRepository.delete(existingLike.likeId);
-                return { ...like.post, isLiked: false };
+                likedPosts = await this.getLikedPostByPostId(toggleLikeDto.postId);
+                return { ...like.post, likePost: likedPosts, isLiked: false };
             }
 
             const user = await this.userRepository.findOne({ where: { userId } });
@@ -77,10 +78,28 @@ export class LikeService {
 
             like = this.likeRepository.create({ ...toggleLikeDto, user, post });
             await this.likeRepository.save(like);
-            return { ...like.post, isLiked: true };
+
+            likedPosts = await this.getLikedPostByPostId(toggleLikeDto.postId);
+
+            return { ...like.post, likePost: likedPosts, isLiked: true };
         } catch (error) {
             console.error('Error creating like:', error);
             throw error;
         }
+    }
+
+    async getLikedPostByPostId(postId: number) {
+        const likedPost = await this.likeRepository.find({
+            where: { post: { postId } },
+            relations: ['user']
+        });
+
+        likedPost.forEach(like => {
+            like.user = plainToInstance(UserResponseDto, like.user, {
+                excludeExtraneousValues: true,
+            }) as any;
+        });
+
+        return likedPost;
     }
 }
