@@ -19,7 +19,7 @@ export class AuthService {
     ) { }
 
     async login(user: UserResponseDto) {
-        const payload = { username: user.username, sub: user.userId };
+        const payload = { email: user.email, sub: user.userId };
         const refreshToken = this.jwtService.sign(payload, { expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRE });
 
         await this.userService.updateRefreshToken(user.userId, refreshToken);
@@ -72,7 +72,7 @@ export class AuthService {
             otpGenaratedTime: new Date()
         }
 
-        const userUpdated = await this.userService.update(user.userId, updateUser);
+        await this.userService.update(user.userId, updateUser);
 
         return {
             message: 'A new OTP has been sent to your email. Please check your inbox and verify account within 5 minute.'

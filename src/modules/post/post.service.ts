@@ -71,8 +71,20 @@ export class PostService {
     async getAllPostsByUser(userId: number) {
         const posts = await this.postRepository.find({
             where: { user: { userId } },
-            relations: ['images']
+            relations: ['images', 'user']
         });
+
+        posts.forEach(post => {
+            post.user = plainToInstance(UserResponseDto, post.user, {
+                excludeExtraneousValues: true,
+            }) as any;
+        });
+
+        for (let i = 0; i < posts.length; i++) {
+            const likedPosts = await this.getLikedPostByPostId(posts[i].postId);
+            posts[i] = { ...posts[i], likePost: likedPosts } as any;
+        }
+
         return posts;
     }
 

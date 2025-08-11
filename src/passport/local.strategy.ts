@@ -5,13 +5,16 @@ import UserResponseDto from "src/modules/user/dto/UserResponseDto";
 import { UserService } from "src/modules/user/user.service";
 
 @Injectable()
-export class LocalStrategy extends PassportStrategy(Strategy) {
+export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     constructor(private readonly userService: UserService) {
-        super();
+        super({
+            usernameField: 'email',
+            passwordField: 'password'
+        });
     }
 
-    async validate(username: string, password: string): Promise<UserResponseDto> {
-        const user = await this.userService.validateUser(username, password);
+    async validate(email: string, password: string): Promise<UserResponseDto> {
+        const user = await this.userService.validateUserByEmail(email, password);
         return user;
     }
 

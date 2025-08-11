@@ -55,8 +55,8 @@ export class SavePostService {
             if (existingSavePost) {
                 savePost = existingSavePost;
                 await this.savePostRepository.delete(existingSavePost.savePostId);
-                //  return { message: 'Unsave post successfully' };
-                return { ...savePost.post, isSaved: false };
+                return { message: 'Unsave post successfully' };
+                //   return { ...savePost.post, isSaved: false };
             }
 
             const user = await this.userRepository.findOne({ where: { userId } });
@@ -64,9 +64,9 @@ export class SavePostService {
                 throw new NotFoundException('User not found');
             }
 
-            const userResponse = plainToInstance(UserResponseDto, user, {
-                excludeExtraneousValues: true,
-            }) as any
+            // const userResponse = plainToInstance(UserResponseDto, user, {
+            //     excludeExtraneousValues: true,
+            // }) as any
 
             const post = await this.postRepository.findOne({
                 where: { postId: toggleSavePostDto.postId },
@@ -79,8 +79,8 @@ export class SavePostService {
 
             savePost = this.savePostRepository.create({ post, user });
             await this.savePostRepository.save(savePost);
-            //  return { message: 'Save post successfully' };
-            return { ...savePost.post, isSaved: true };
+            return { message: 'Save post successfully' };
+            // return { ...savePost.post, isSaved: true };
 
         } catch (error) {
             console.error('Error toggling save post:', error);

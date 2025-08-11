@@ -119,6 +119,23 @@ export class UserService {
         return user;
     }
 
+    async validateUserByEmail(email: string, password: string): Promise<UserResponseDto> {
+        const user = await this.findByEmail(email);
+
+        const auth = await bcrypt.compare(password, user.password);
+        if (!auth) {
+            throw new UnauthorizedException('Invalid password');
+        }
+
+        if (!user.isActive) {
+            throw new UnauthorizedException('Your account is not activated. Please verify your email to activate your account');
+        }
+
+        return plainToInstance(UserResponseDto, user, {
+            excludeExtraneousValues: true
+        });
+    }
+
 
     async updateRefreshToken(userId: number, refreshToken: string) {
         const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
@@ -137,10 +154,19 @@ export class UserService {
     }
 
     async update(id: number, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
-        updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+        //     updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
         await this.userRepository.update(id, updateUserDto);
         return this.findOne(id);
     }
+
+    // async updatePassword(id: number, password: string): Promise<UserResponseDto> {
+    //     const user = await this.findOne(id);
+    //     const hashedPassword = await bcrypt.hash(password, 10);
+    //     await this.userRepository.update(id, { password: hashedPassword });
+    //     return plainToInstance(UserResponseDto, user, {
+    //         excludeExtraneousValues: true
+    //     });
+    // }
 
     async remove(id: number): Promise<{ message: string }> {
         await this.userRepository.delete(id);
