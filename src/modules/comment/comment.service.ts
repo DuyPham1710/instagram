@@ -6,6 +6,8 @@ import { Comment } from 'src/entities/Comment';
 import { User } from 'src/entities/User';
 import { Post } from 'src/entities/Post';
 import { UpdateCommentDto } from './dto/UpdateCommentDto';
+import UserResponseDto from '../user/dto/UserResponseDto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class CommentService {
@@ -19,7 +21,14 @@ export class CommentService {
     ) { }
 
     async getCommentsByPostId(postId: number) {
-        const comments = await this.commentRepository.find({ where: { post: { postId } } });
+        const comments = await this.commentRepository.find({ where: { post: { postId } }, relations: ['user'] });
+
+        comments.forEach(comment => {
+            comment.user = plainToInstance(UserResponseDto, comment.user, {
+                excludeExtraneousValues: true,
+            }) as any;
+        });
+
         return comments;
     }
 
@@ -42,7 +51,17 @@ export class CommentService {
 
             const comment = this.commentRepository.create({ ...createCommentDto, user, post });
             await this.commentRepository.save(comment);
-            return { message: 'Comment created successfully' };
+
+            comment.user = plainToInstance(UserResponseDto, comment.user, {
+                excludeExtraneousValues: true,
+            }) as any;
+
+            return {
+                commentId: comment.commentId,
+                user: comment.user,
+                content: comment.content,
+                createdAt: comment.createdAt,
+            };
         } catch (error) {
             console.error('Error creating post:', error);
             throw error;

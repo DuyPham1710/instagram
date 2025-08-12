@@ -10,6 +10,7 @@ import { Follow } from 'src/entities/Follow';
 import UserResponseDto from '../user/dto/UserResponseDto';
 import { plainToInstance } from 'class-transformer';
 import { Like } from 'src/entities/Like';
+import { CommentService } from '../comment/comment.service';
 
 @Injectable()
 export class PostService {
@@ -24,6 +25,7 @@ export class PostService {
         private readonly followRepository: Repository<Follow>,
         @InjectRepository(Like)
         private readonly likeRepository: Repository<Like>,
+        private readonly commentService: CommentService
     ) { }
 
     async getAllPostsFollowing(userId: number) {
@@ -48,6 +50,11 @@ export class PostService {
         for (let i = 0; i < posts.length; i++) {
             const likedPosts = await this.getLikedPostByPostId(posts[i].postId);
             posts[i] = { ...posts[i], likePost: likedPosts } as any;
+        }
+
+        for (let i = 0; i < posts.length; i++) {
+            const comments = await this.commentService.getCommentsByPostId(posts[i].postId);
+            posts[i] = { ...posts[i], comments } as any;
         }
 
         return posts;
@@ -83,6 +90,11 @@ export class PostService {
         for (let i = 0; i < posts.length; i++) {
             const likedPosts = await this.getLikedPostByPostId(posts[i].postId);
             posts[i] = { ...posts[i], likePost: likedPosts } as any;
+        }
+
+        for (let i = 0; i < posts.length; i++) {
+            const comments = await this.commentService.getCommentsByPostId(posts[i].postId);
+            posts[i] = { ...posts[i], comments } as any;
         }
 
         return posts;
