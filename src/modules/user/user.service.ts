@@ -156,7 +156,12 @@ export class UserService {
     async update(id: number, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
         //     updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
         await this.userRepository.update(id, updateUserDto);
-        return this.findOne(id);
+
+        const user = await this.findOne(id);
+
+        return plainToInstance(UserResponseDto, user, {
+            excludeExtraneousValues: true
+        });
     }
 
     // async updatePassword(id: number, password: string): Promise<UserResponseDto> {
